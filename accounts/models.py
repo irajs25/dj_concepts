@@ -10,7 +10,7 @@ from django.db.models.signals import post_save
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, password):
+    def create_user(self, email, password=None):
         user = self.model(
             username=self.normalize_email(email),
             email=self.normalize_email(email),
