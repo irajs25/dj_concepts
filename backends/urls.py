@@ -21,7 +21,47 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
+from django.utils.translation import ugettext_lazy as _
+admin.site.site_header = _("RKCC Administration")
+admin.site.site_title = _("RKCC Admin")
+
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="RKCC",
+      default_version='v1',
+      description="RKCC API Endpoints",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="rjcse131998@gmail.com"),
+      license=openapi.License(name="RKCC License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+   patterns=[
+    path("auth/", include("djoser.urls")),
+    path("auth/", include("djoser.urls.jwt")),
+    # path("accounts/", include("accounts.urls")),
+    path('api/token/',
+        TokenObtainPairView.as_view(),
+        name ='token_obtain_pair'),
+    path('api/token/refresh/',
+        TokenRefreshView.as_view(),
+        name ='token_refresh'),
+     path('api/token/verify/', 
+        TokenVerifyView.as_view(), 
+        name='token_verify'),
+   ]
+)
+
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
+    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('admin/', admin.site.urls),
     path('auth/', include('djoser.urls')),
     path('api/token/',
@@ -33,4 +73,4 @@ urlpatterns = [
      path('api/token/verify/', 
          TokenVerifyView.as_view(), 
          name='token_verify'),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
